@@ -1,0 +1,203 @@
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Noto+Sans+TC:wght@300;400;500;700;900&display=swap');
+
+:root {
+  --bg-primary: #070a13;
+  --bg-secondary: #0c1122;
+  --bg-tertiary: #131b33;
+  --card-bg: rgba(13, 20, 38, 0.6);
+  --card-border: rgba(255, 255, 255, 0.07);
+  
+  --accent-color: #3b82f6;
+  --accent-glow: rgba(59, 130, 246, 0.35);
+  
+  /* 台股專屬紅漲綠跌 */
+  --tw-up: #ef4444;       /* 霓虹紅 */
+  --tw-up-glow: rgba(239, 68, 68, 0.3);
+  --tw-down: #10b981;     /* 螢光綠 */
+  --tw-down-glow: rgba(16, 185, 129, 0.3);
+}
+
+/* 當啟用美美股配色 (紅跌綠漲) 的 class */
+.us-color-mode {
+  --tw-up: #10b981;
+  --tw-up-glow: rgba(16, 185, 129, 0.3);
+  --tw-down: #ef4444;
+  --tw-down-glow: rgba(239, 68, 68, 0.3);
+}
+
+body {
+  font-family: 'Outfit', 'Noto Sans TC', sans-serif;
+  background-color: var(--bg-primary);
+  background-image: 
+    radial-gradient(at 0% 0%, rgba(20, 30, 60, 0.4) 0px, transparent 50%),
+    radial-gradient(at 100% 100%, rgba(13, 20, 40, 0.4) 0px, transparent 50%),
+    radial-gradient(at 50% 0%, rgba(59, 130, 246, 0.05) 0px, transparent 40%);
+  background-attachment: fixed;
+  color: #f3f4f6;
+  overflow-x: hidden;
+}
+
+/* Glassmorphism Card Style */
+.glass-card {
+  background: var(--card-bg);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid var(--card-border);
+  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.glass-card:hover {
+  border-color: rgba(255, 255, 255, 0.12);
+  box-shadow: 0 12px 40px 0 rgba(0, 0, 0, 0.45);
+}
+
+/* Glowing text effects */
+.glow-text-up {
+  color: var(--tw-up);
+  text-shadow: 0 0 8px var(--tw-up-glow);
+}
+
+.glow-text-down {
+  color: var(--tw-down);
+  text-shadow: 0 0 8px var(--tw-down-glow);
+}
+
+.glow-border-blue {
+  box-shadow: 0 0 15px rgba(59, 130, 246, 0.15);
+  border-color: rgba(59, 130, 246, 0.3);
+}
+
+/* TradingView Chart custom styling overrides */
+.tv-chart-container {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+/* Custom Scrollbar for premium dark feel */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--bg-primary);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--bg-tertiary);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--accent-color);
+}
+
+/* Button & interactive animations */
+.btn-glow {
+  position: relative;
+  transition: all 0.3s ease;
+  overflow: hidden;
+}
+
+.btn-glow::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -50%;
+  width: 200%;
+  height: 100%;
+  background: linear-gradient(
+    to right,
+    rgba(255, 255, 255, 0) 0%,
+    rgba(255, 255, 255, 0.1) 30%,
+    rgba(255, 255, 255, 0.2) 50%,
+    rgba(255, 255, 255, 0.1) 70%,
+    rgba(255, 255, 255, 0) 100%
+  );
+  transform: skewX(-25deg);
+  transition: 0.75s;
+  opacity: 0;
+}
+
+.btn-glow:hover::after {
+  left: 125%;
+  opacity: 1;
+}
+
+.btn-glow-blue:hover {
+  background-color: var(--accent-color);
+  box-shadow: 0 0 15px var(--accent-glow);
+  transform: translateY(-1px);
+}
+
+/* Dynamic list item hover */
+.interactive-item {
+  transition: all 0.2s ease;
+}
+.interactive-item:hover {
+  background-color: rgba(255, 255, 255, 0.03);
+  transform: translateX(4px);
+}
+
+/* Tabs animation */
+.tab-active {
+  border-bottom: 2px solid var(--accent-color);
+  color: var(--accent-color);
+  font-weight: 600;
+}
+
+/* 教育中心小卡設計 */
+.edu-pill {
+  background: rgba(59, 130, 246, 0.08);
+  border: 1px solid rgba(59, 130, 246, 0.15);
+  transition: all 0.2s ease;
+}
+.edu-pill:hover {
+  background: rgba(59, 130, 246, 0.15);
+  transform: translateY(-2px);
+}
+
+/* Pulse animation for active simulation status */
+@keyframes pulse-ring {
+  0% {
+    transform: scale(0.95);
+    box-shadow: 0 0 0 0 rgba(59, 130, 246, 0.5);
+  }
+  70% {
+    transform: scale(1);
+    box-shadow: 0 0 0 6px rgba(59, 130, 246, 0);
+  }
+  100% {
+    transform: scale(0.95);
+    box-shadow: 0 0 0 0 rgba(59, 130, 246, 0);
+  }
+}
+.pulse-sim {
+  animation: pulse-ring 2s infinite;
+}
+
+/* Badge tags styling */
+.badge-tech {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: #9ca3af;
+}
+
+/* Sparkline charts placeholder animation */
+@keyframes shimmer {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+}
+.shimmer-loading {
+  background: linear-gradient(90deg, #131b33 25%, #1d284c 50%, #131b33 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+}

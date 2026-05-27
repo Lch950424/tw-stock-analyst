@@ -1,0 +1,417 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>台灣股市獲利策略分析與教學平台 - Taiwan Stock Strategy Hub</title>
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Tailwind config for custom utilities if needed -->
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            darkbg: '#070a13',
+            darkcard: 'rgba(13, 20, 38, 0.65)',
+            glowblue: '#3b82f6',
+          }
+        }
+      }
+    }
+  </script>
+  <!-- Google Fonts & Custom CSS -->
+  <link rel="stylesheet" href="style.css">
+  <!-- TradingView Lightweight Charts CDN -->
+  <script src="https://unpkg.com/lightweight-charts@4.1.1/dist/lightweight-charts.standalone.production.js"></script>
+  <!-- Lucide Icons -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+</head>
+<body class="min-h-screen text-gray-100 flex flex-col">
+
+  <!-- 頂部導覽列 (Header) -->
+  <header class="glass-card border-b border-white/5 py-4 px-6 flex flex-wrap items-center justify-between gap-4 sticky top-0 z-50">
+    <div class="flex items-center gap-3">
+      <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-blue-600 to-indigo-500 flex items-center justify-center shadow-lg shadow-blue-500/20">
+        <i data-lucide="trending-up" class="w-6 h-6 text-white"></i>
+      </div>
+      <div>
+        <h1 class="text-xl font-bold tracking-wide bg-gradient-to-r from-white via-gray-100 to-gray-400 bg-clip-text text-transparent">
+          Taiwan Stock Strategy Hub
+        </h1>
+        <p class="text-xs text-gray-400 font-medium">台灣股市獲利分析與教學平台</p>
+      </div>
+    </div>
+
+    <!-- 控制與模式切換區 -->
+    <div class="flex items-center gap-4 flex-wrap">
+      <!-- 模擬交易切換 -->
+      <button id="btn-toggle-sim" class="btn-glow flex items-center gap-2 px-4 py-2 rounded-lg bg-gray-800 border border-gray-700 text-sm hover:border-blue-500 hover:text-white transition">
+        <i data-lucide="play" class="w-4 h-4 text-blue-400"></i>
+        <span>開啟模擬盤 (手動訓練)</span>
+      </button>
+
+      <!-- 配色切換 (台股紅漲綠跌/美股綠漲紅跌) -->
+      <button id="btn-color-mode" class="flex items-center gap-2 px-3 py-2 rounded-lg bg-gray-800/40 border border-white/5 text-xs text-gray-400 hover:text-white transition">
+        <i data-lucide="palette" class="w-4 h-4"></i>
+        <span id="color-mode-text">台股配色 (紅漲綠跌)</span>
+      </button>
+
+      <a href="https://github.com" target="_blank" class="p-2 rounded-lg bg-gray-800/50 hover:bg-gray-800 text-gray-400 hover:text-white transition">
+        <i data-lucide="github" class="w-5 h-5"></i>
+      </a>
+    </div>
+  </header>
+
+  <!-- 主內容區 (三欄式佈局) -->
+  <main class="flex-1 p-4 lg:p-6 grid grid-cols-1 lg:grid-cols-4 gap-6 max-w-[1800px] w-full mx-auto">
+    
+    <!-- 左側邊欄：設定、股票與策略選擇 (1/4 寬度) -->
+    <section class="flex flex-col gap-6 lg:col-span-1">
+      <!-- 1. 股票選擇器 -->
+      <div class="glass-card rounded-2xl p-5 flex flex-col gap-4">
+        <div class="flex items-center justify-between border-b border-white/5 pb-2">
+          <h2 class="text-sm font-semibold uppercase tracking-wider text-gray-400 flex items-center gap-2">
+            <i data-lucide="activity" class="w-4 h-4 text-blue-400"></i>
+            選擇台股標的
+          </h2>
+          <span class="text-[10px] px-2 py-0.5 rounded-full badge-tech">4 檔預載</span>
+        </div>
+        
+        <div class="grid grid-cols-2 gap-2" id="stock-list">
+          <!-- 股票按鈕由 JS 動態生成 -->
+        </div>
+
+        <!-- 當前股票詳細說明 -->
+        <div class="bg-gray-900/50 border border-white/5 rounded-xl p-3 text-xs" id="stock-info-card">
+          <h3 class="font-bold text-gray-200 mb-1" id="stock-info-name">載入中...</h3>
+          <p class="text-gray-400 leading-relaxed" id="stock-info-desc">正在加載個股背景資訊...</p>
+        </div>
+
+        <!-- 真實即時數據獲取 -->
+        <div class="border-t border-white/5 pt-3 flex flex-col gap-2">
+          <label class="block text-[11px] text-gray-400 flex items-center gap-1">
+            <i data-lucide="globe" class="w-3.5 h-3.5 text-blue-400"></i>
+            載入台股真實即時行情
+          </label>
+          <div class="flex gap-2">
+            <input type="text" id="realtime-ticker-input" placeholder="例如: 2603 或 2002" class="flex-1 bg-gray-900/80 border border-gray-750/50 rounded-lg px-2.5 py-1.5 text-xs text-white focus:outline-none focus:border-blue-500 font-mono">
+            <button id="btn-fetch-realtime" class="px-3 py-1.5 rounded-lg bg-blue-600 hover:bg-blue-500 text-xs font-bold text-white transition active:scale-95 flex items-center gap-1 btn-glow">
+              <i data-lucide="search" class="w-3 h-3"></i>
+              查詢
+            </button>
+          </div>
+        </div>
+
+        <!-- 自訂 CSV 上傳 -->
+        <div class="border-t border-white/5 pt-3">
+          <label class="block text-[11px] text-gray-400 mb-2 flex items-center gap-1 hover:text-white cursor-pointer">
+            <i data-lucide="upload-cloud" class="w-3.5 h-3.5 text-blue-400"></i>
+            匯入您自己的 CSV K線檔案
+          </label>
+          <input type="file" id="csv-file-input" accept=".csv" class="hidden">
+          <button onclick="document.getElementById('csv-file-input').click()" class="w-full py-1.5 rounded-lg border border-dashed border-gray-700 hover:border-blue-500/50 text-xs text-gray-400 hover:text-white transition">
+            選擇本機 CSV 檔案
+          </button>
+        </div>
+      </div>
+
+      <!-- 2. 策略選擇器 -->
+      <div class="glass-card rounded-2xl p-5 flex flex-col gap-4 flex-1">
+        <h2 class="text-sm font-semibold uppercase tracking-wider text-gray-400 border-b border-white/5 pb-2 flex items-center gap-2">
+          <i data-lucide="layers" class="w-4 h-4 text-amber-500"></i>
+          選擇獲利策略
+        </h2>
+        
+        <div class="flex flex-col gap-3" id="strategy-list">
+          <!-- 策略卡片由 JS 動態生成 -->
+        </div>
+      </div>
+
+      <!-- 3. 回測參數調整 -->
+      <div class="glass-card rounded-2xl p-5 flex flex-col gap-4">
+        <h2 class="text-sm font-semibold uppercase tracking-wider text-gray-400 border-b border-white/5 pb-2 flex items-center gap-2">
+          <i data-lucide="settings" class="w-4 h-4 text-gray-400"></i>
+          回測參數設定
+        </h2>
+        <div class="space-y-3 text-xs text-gray-300">
+          <div>
+            <div class="flex justify-between mb-1">
+              <span>初始資金 (TWD)</span>
+              <span id="val-capital">1,000,000</span>
+            </div>
+            <input type="range" id="param-capital" min="100000" max="5000000" step="100000" value="1000000" class="w-full accent-blue-500">
+          </div>
+          <div>
+            <div class="flex justify-between mb-1">
+              <span>手續費折讓 (台股折扣)</span>
+              <span id="val-discount">6 折 (0.0855%)</span>
+            </div>
+            <input type="range" id="param-discount" min="1" max="10" step="1" value="6" class="w-full accent-blue-500">
+          </div>
+          <div class="flex justify-between items-center py-1">
+            <span>台股交易稅</span>
+            <span class="text-gray-400 bg-gray-800/80 px-2 py-0.5 rounded text-[10px]" id="val-tax">個股 0.3%</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 中間欄：圖表與回測面板 (2/4 寬度) -->
+    <section class="flex flex-col gap-6 lg:col-span-2">
+      <!-- K 線圖卡片 -->
+      <div class="glass-card rounded-2xl p-4 flex flex-col gap-4 h-[480px]">
+        <div class="flex items-center justify-between border-b border-white/5 pb-2">
+          <div class="flex items-center gap-3">
+            <span class="text-lg font-bold text-gray-100" id="chart-title-ticker">2330</span>
+            <span class="text-xs bg-blue-900/40 text-blue-400 px-2.5 py-0.5 rounded-full border border-blue-500/20" id="chart-title-name">台積電</span>
+            <!-- 模擬盤標記 -->
+            <span id="sim-status-badge" class="hidden text-xs bg-amber-900/40 text-amber-400 px-2.5 py-0.5 rounded-full border border-amber-500/20 flex items-center gap-1.5 pulse-sim">
+              <span class="w-1.5 h-1.5 rounded-full bg-amber-400"></span>
+              模擬交易中
+            </span>
+          </div>
+          <div class="text-xs text-gray-400 flex items-center gap-2">
+            <span class="flex items-center gap-1"><i data-lucide="mouse-pointer" class="w-3.5 h-3.5"></i> 滾輪縮放 / 拖曳平移</span>
+            <span class="text-gray-600">|</span>
+            <span class="flex items-center gap-1"><i data-lucide="info" class="w-3.5 h-3.5 text-amber-500"></i> 點擊紅/綠買賣標記看教學</span>
+          </div>
+        </div>
+        
+        <!-- 圖表放置容器 -->
+        <div class="flex-1 w-full relative" id="main-chart-parent">
+          <div id="chart-loading" class="absolute inset-0 flex items-center justify-center bg-darkbg/80 z-10 text-sm text-gray-400">
+            <div class="flex flex-col items-center gap-2">
+              <i data-lucide="loader" class="w-8 h-8 text-blue-500 animate-spin"></i>
+              <span>圖表加載中...</span>
+            </div>
+          </div>
+          <div id="chart-container" class="tv-chart-container"></div>
+        </div>
+      </div>
+
+      <!-- 回測績效統計面板 -->
+      <div class="glass-card rounded-2xl p-5 flex flex-col gap-5">
+        <h2 class="text-sm font-semibold uppercase tracking-wider text-gray-400 border-b border-white/5 pb-2 flex items-center gap-2">
+          <i data-lucide="pie-chart" class="w-4 h-4 text-emerald-500"></i>
+          策略回測績效儀表板
+        </h2>
+
+        <!-- 三張大績效卡片 -->
+        <div class="grid grid-cols-3 gap-4">
+          <div class="bg-gray-900/40 border border-white/5 rounded-xl p-4 flex flex-col">
+            <span class="text-xs text-gray-400 mb-1 flex items-center gap-1">
+              總報酬率
+              <i data-lucide="help-circle" class="w-3 h-3 text-gray-600" title="在測試期間內，此策略產生的累積報酬率。"></i>
+            </span>
+            <span class="text-2xl font-bold tracking-tight" id="perf-total-return">+0.0%</span>
+            <span class="text-[10px] text-gray-500 mt-1" id="perf-bh-comparison">買入持有: +0.0%</span>
+          </div>
+          
+          <div class="bg-gray-900/40 border border-white/5 rounded-xl p-4 flex flex-col">
+            <span class="text-xs text-gray-400 mb-1 flex items-center gap-1">
+              勝率 (Win Rate)
+              <i data-lucide="help-circle" class="w-3 h-3 text-gray-600" title="賺錢的交易次數佔總交易次數的比例。"></i>
+            </span>
+            <span class="text-2xl font-bold tracking-tight text-amber-400" id="perf-win-rate">0%</span>
+            <span class="text-[10px] text-gray-500 mt-1" id="perf-trade-count">總交易: 0 次</span>
+          </div>
+
+          <div class="bg-gray-900/40 border border-white/5 rounded-xl p-4 flex flex-col">
+            <span class="text-xs text-gray-400 mb-1 flex items-center gap-1">
+              最大回撤 (MDD)
+              <i data-lucide="help-circle" class="w-3 h-3 text-gray-600" title="資產淨值在歷史高點拉回的最大幅度，用來評估策略的風險。"></i>
+            </span>
+            <span class="text-2xl font-bold tracking-tight text-emerald-400" id="perf-mdd">0.0%</span>
+            <span class="text-[10px] text-gray-500 mt-1" id="perf-profit-factor">獲利因子: 0.0</span>
+          </div>
+        </div>
+
+        <!-- 淨值曲線圖 (Equity Curve) 與 歷史交易明細 Tab -->
+        <div>
+          <div class="flex border-b border-white/5 mb-4 text-sm">
+            <button id="tab-btn-equity" class="pb-2 px-4 tab-active transition">資產淨值走勢</button>
+            <button id="tab-btn-trades" class="pb-2 px-4 text-gray-400 hover:text-gray-200 transition">交易明細</button>
+          </div>
+
+          <!-- Tab 1: 淨值曲線 -->
+          <div id="tab-content-equity" class="h-[200px] w-full">
+            <div id="equity-chart-container" class="w-full h-full"></div>
+          </div>
+
+          <!-- Tab 2: 交易明細 Table -->
+          <div id="tab-content-trades" class="hidden overflow-y-auto max-h-[200px] border border-white/5 rounded-xl">
+            <table class="w-full text-left text-xs border-collapse">
+              <thead>
+                <tr class="bg-gray-900/80 border-b border-white/5 text-gray-400">
+                  <th class="py-2.5 px-3">買入日期</th>
+                  <th class="py-2.5 px-3">買價</th>
+                  <th class="py-2.5 px-3">賣出日期</th>
+                  <th class="py-2.5 px-3">賣價</th>
+                  <th class="py-2.5 px-3 text-right">交易張數</th>
+                  <th class="py-2.5 px-3 text-right">淨損益</th>
+                  <th class="py-2.5 px-3 text-right">報酬率</th>
+                </tr>
+              </thead>
+              <tbody id="trade-log-rows" class="divide-y divide-white/5">
+                <!-- 交易明細 rows 由 JS 動態生成 -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 右側邊欄：互動式教學面板與模擬交易 (1/4 寬度) -->
+    <section class="flex flex-col gap-6 lg:col-span-1">
+      
+      <!-- 1. 模擬交易控制面板 (預設隱藏，點擊開啟時顯示) -->
+      <div id="sim-control-panel" class="hidden glass-card rounded-2xl p-5 border border-amber-500/30 flex flex-col gap-4 bg-amber-950/10">
+        <h2 class="text-sm font-semibold uppercase tracking-wider text-amber-400 border-b border-amber-500/20 pb-2 flex items-center gap-2">
+          <i data-lucide="play-circle" class="w-4 h-4"></i>
+          模擬交易訓練艙
+        </h2>
+
+        <div class="text-xs text-gray-300 space-y-3">
+          <div class="flex justify-between bg-gray-900/60 p-2.5 rounded-lg border border-white/5">
+            <div>
+              <div class="text-gray-500 text-[10px]">模擬日期</div>
+              <div class="font-bold text-gray-200" id="sim-current-date">YYYY-MM-DD</div>
+            </div>
+            <div class="text-right">
+              <div class="text-gray-500 text-[10px]">當前股價</div>
+              <div class="font-bold text-amber-400" id="sim-current-price">0.0 元</div>
+            </div>
+          </div>
+
+          <div class="flex justify-between text-[11px] text-gray-400 px-1">
+            <span>您的現金: <strong class="text-white" id="sim-cash">1,000,000</strong></span>
+            <span>持股: <strong class="text-white" id="sim-hold-shares">0</strong> 股</span>
+          </div>
+
+          <!-- 交易操作按鈕 -->
+          <div class="grid grid-cols-2 gap-3">
+            <button id="btn-sim-buy" class="py-2.5 rounded-xl font-bold bg-red-600 hover:bg-red-500 text-white shadow-lg shadow-red-600/10 transition active:scale-95 flex items-center justify-center gap-1.5">
+              <i data-lucide="arrow-up-circle" class="w-4 h-4"></i> 買入一張
+            </button>
+            <button id="btn-sim-sell" class="py-2.5 rounded-xl font-bold bg-emerald-600 hover:bg-emerald-500 text-white shadow-lg shadow-emerald-600/10 transition active:scale-95 flex items-center justify-center gap-1.5">
+              <i data-lucide="arrow-down-circle" class="w-4 h-4"></i> 賣出全部
+            </button>
+          </div>
+
+          <!-- 播放控制項 -->
+          <div class="border-t border-white/5 pt-3 flex flex-col gap-2">
+            <div class="flex items-center justify-between">
+              <span class="text-[10px] text-gray-400">播放控制</span>
+              <span class="text-[10px] text-blue-400" id="sim-play-speed-text">速度: 0.5s / 天</span>
+            </div>
+            
+            <div class="flex items-center justify-between gap-2">
+              <button id="btn-sim-play-pause" class="flex-1 py-1.5 rounded bg-gray-800 hover:bg-gray-700 text-gray-200 transition flex items-center justify-center gap-1">
+                <i data-lucide="play" class="w-3.5 h-3.5"></i> <span>播放</span>
+              </button>
+              <button id="btn-sim-step" class="px-3 py-1.5 rounded bg-gray-800 hover:bg-gray-700 text-gray-200 transition flex items-center justify-center" title="前進一天">
+                <i data-lucide="chevron-right" class="w-4 h-4"></i>
+              </button>
+              <button id="btn-sim-reset" class="px-3 py-1.5 rounded bg-gray-800/50 hover:bg-gray-800 hover:text-red-400 text-gray-400 transition flex items-center justify-center" title="重新開始">
+                <i data-lucide="rotate-ccw" class="w-3.5 h-3.5"></i>
+              </button>
+            </div>
+          </div>
+
+          <!-- 即時成績單 -->
+          <div class="bg-blue-950/10 border border-blue-500/20 rounded-xl p-3 text-xs flex flex-col gap-1.5">
+            <div class="font-semibold text-blue-400 flex items-center gap-1">
+              <i data-lucide="award" class="w-3.5 h-3.5"></i> 您的操作績效
+            </div>
+            <div class="flex justify-between">
+              <span>累積損益</span>
+              <span class="font-bold text-gray-200" id="sim-perf-profit">+$0</span>
+            </div>
+            <div class="flex justify-between">
+              <span>累積報酬率</span>
+              <span class="font-bold text-gray-200" id="sim-perf-return">0.0%</span>
+            </div>
+            <div class="flex justify-between border-t border-white/5 pt-1 mt-1 text-[10px] text-gray-400">
+              <span>策略同期績效:</span>
+              <span class="font-bold text-red-400" id="sim-auto-perf">0.0%</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 2. 互動式教學診斷面板 (Signal Tutor) -->
+      <div class="glass-card rounded-2xl p-5 flex flex-col gap-4 flex-1">
+        <h2 class="text-sm font-semibold uppercase tracking-wider text-gray-400 border-b border-white/5 pb-2 flex items-center gap-2">
+          <i data-lucide="graduation-cap" class="w-4 h-4 text-blue-400"></i>
+          進出場訊號教學診斷室
+        </h2>
+
+        <!-- 未點訊號時的預設狀態 -->
+        <div id="edu-default-state" class="flex-1 flex flex-col items-center justify-center text-center p-6 text-xs text-gray-500">
+          <div class="w-12 h-12 rounded-full bg-gray-900 border border-white/5 flex items-center justify-center mb-3">
+            <i data-lucide="mouse-pointer" class="w-5 h-5 text-gray-600"></i>
+          </div>
+          <p class="font-medium text-gray-400 mb-1">尚未選擇交易訊號</p>
+          <p class="leading-relaxed">請在左邊的 K 線圖中，點擊任何一個綠色的「B（買入）」或紅色的「S（賣出）」三角形標記，此處將立即為您解密該次進出場的交易邏輯！</p>
+        </div>
+
+        <!-- 點擊訊號後動態填充的教學內容 -->
+        <div id="edu-dynamic-content" class="hidden flex-1 flex flex-col gap-4 overflow-y-auto max-h-[500px] text-xs">
+          <!-- JS 動態插入處 -->
+        </div>
+      </div>
+
+      <!-- 3. 台股交易知識小卡 -->
+      <div class="glass-card rounded-2xl p-5 flex flex-col gap-4">
+        <h2 class="text-sm font-semibold uppercase tracking-wider text-gray-400 border-b border-white/5 pb-2 flex items-center gap-2">
+          <i data-lucide="book-open" class="w-4 h-4 text-emerald-500"></i>
+          台股交易指南
+        </h2>
+        <div class="flex flex-col gap-2">
+          <!-- 卡片 1 -->
+          <div class="edu-pill p-3 rounded-xl cursor-pointer" onclick="showKnowledge('tax')">
+            <div class="flex items-center justify-between text-xs font-bold text-gray-200 mb-1">
+              <span>台股獨特交易成本</span>
+              <i data-lucide="chevron-right" class="w-3.5 h-3.5 text-gray-500"></i>
+            </div>
+            <p class="text-[10px] text-gray-400 line-clamp-1">手續費 0.1425% 與證交稅 0.3% 的計價眉角</p>
+          </div>
+          <!-- 卡片 2 -->
+          <div class="edu-pill p-3 rounded-xl cursor-pointer" onclick="showKnowledge('margin')">
+            <div class="flex items-center justify-between text-xs font-bold text-gray-200 mb-1">
+              <span>三大法人籌碼面指標</span>
+              <i data-lucide="chevron-right" class="w-3.5 h-3.5 text-gray-500"></i>
+            </div>
+            <p class="text-[10px] text-gray-400 line-clamp-1">外資、投信與自營商如何引導台股趨勢</p>
+          </div>
+          <!-- 卡片 3 -->
+          <div class="edu-pill p-3 rounded-xl cursor-pointer" onclick="showKnowledge('limit')">
+            <div class="flex items-center justify-between text-xs font-bold text-gray-200 mb-1">
+              <span>台股 10% 漲跌停限制</span>
+              <i data-lucide="chevron-right" class="w-3.5 h-3.5 text-gray-500"></i>
+            </div>
+            <p class="text-[10px] text-gray-400 line-clamp-1">波動鎖死機制對突破與停損策略的影響</p>
+          </div>
+        </div>
+      </div>
+
+    </section>
+
+  </main>
+
+  <!-- 底部 Footer -->
+  <footer class="border-t border-white/5 py-4 px-6 text-center text-xs text-gray-500 glass-card">
+    <p>© 2026 Taiwan Stock Strategy Hub. Designed with DeepMind pairing assistant. 投資有風險，回測僅供教育教學研究之用，不構成投資買賣建議。</p>
+  </footer>
+
+  <!-- 載入專案 JS 模組 -->
+  <script src="js/data.js"></script>
+  <script src="js/indicators.js"></script>
+  <script src="js/strategies.js"></script>
+  <script src="js/backtester.js"></script>
+  <script src="js/ui.js"></script>
+  <script src="js/app.js"></script>
+
+</body>
+</html>
