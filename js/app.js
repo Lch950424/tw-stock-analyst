@@ -39,7 +39,10 @@ const App = (() => {
     // 3. 綁定按鈕與控制項事件
     bindEvents();
 
-    // 4. 首次加載與分析
+    // 4. 初始化股票搜尋自動完成選單
+    initAutocomplete();
+
+    // 5. 首次加載與分析
     loadStockAndRun(currentTicker);
   }
 
@@ -353,6 +356,114 @@ const App = (() => {
         getEl('btn-fetch-realtime').click();
       }
     };
+  }
+
+  // ==========================================
+  // 熱門台股搜尋字典與自動完成邏輯
+  // ==========================================
+  
+  const TAIWAN_STOCKS = [
+    { ticker: '2330', name: '台積電' },
+    { ticker: '2317', name: '鴻海' },
+    { ticker: '2454', name: '聯發科' },
+    { ticker: '0050', name: '元大台灣50' },
+    { ticker: '2303', name: '聯電' },
+    { ticker: '2603', name: '長榮' },
+    { ticker: '2609', name: '陽明' },
+    { ticker: '2615', name: '萬海' },
+    { ticker: '2002', name: '中鋼' },
+    { ticker: '2308', name: '台達電' },
+    { ticker: '2382', name: '廣達' },
+    { ticker: '3231', name: '緯創' },
+    { ticker: '2357', name: '華碩' },
+    { ticker: '2324', name: '仁寶' },
+    { ticker: '3711', name: '日月光投控' },
+    { ticker: '2881', name: '富邦金' },
+    { ticker: '2882', name: '國泰金' },
+    { ticker: '2891', name: '中信金' },
+    { ticker: '2886', name: '兆豐金' },
+    { ticker: '2884', name: '玉山金' },
+    { ticker: '2892', name: '第一金' },
+    { ticker: '5880', name: '合庫金' },
+    { ticker: '2890', name: '永豐金' },
+    { ticker: '2880', name: '華南金' },
+    { ticker: '2885', name: '元大金' },
+    { ticker: '2883', name: '開發金' },
+    { ticker: '0056', name: '元大高股息' },
+    { ticker: '00878', name: '國泰永續高股息' },
+    { ticker: '00919', name: '群益台灣精選高息' },
+    { ticker: '00929', name: '復華台灣科技優息' },
+    { ticker: '00940', name: '元大台灣價值高息' },
+    { ticker: '2618', name: '長榮航' },
+    { ticker: '2610', name: '華航' },
+    { ticker: '2353', name: '宏碁' },
+    { ticker: '3037', name: '欣興' },
+    { ticker: '3008', name: '大立光' },
+    { ticker: '3045', name: '台灣大' },
+    { ticker: '4904', name: '遠傳' },
+    { ticker: '2412', name: '中華電' },
+    { ticker: '1101', name: '台泥' },
+    { ticker: '1301', name: '台塑' },
+    { ticker: '1303', name: '南亞' },
+    { ticker: '1326', name: '台化' },
+    { ticker: '6505', name: '台塑化' }
+  ];
+
+  function initAutocomplete() {
+    const input = getEl('realtime-ticker-input');
+    const list = getEl('realtime-autocomplete-list');
+
+    input.addEventListener('input', function() {
+      const val = this.value.trim().toLowerCase();
+      list.innerHTML = '';
+
+      if (!val) {
+        list.classList.add('hidden');
+        return;
+      }
+
+      // 模糊比對股票代碼與中文名稱
+      const matches = TAIWAN_STOCKS.filter(stock => 
+        stock.ticker.includes(val) || 
+        stock.name.toLowerCase().includes(val)
+      );
+
+      if (matches.length === 0) {
+        list.classList.add('hidden');
+        return;
+      }
+
+      matches.forEach(stock => {
+        const item = document.createElement('div');
+        item.className = 'px-3 py-2.5 hover:bg-blue-600/20 hover:text-white cursor-pointer transition text-gray-300 font-medium flex justify-between items-center';
+        
+        item.innerHTML = `
+          <span class="font-mono text-white font-bold">${stock.ticker}</span>
+          <span class="opacity-80">${stock.name}</span>
+        `;
+
+        item.addEventListener('click', function() {
+          input.value = stock.ticker;
+          list.classList.add('hidden');
+          getEl('btn-fetch-realtime').click(); // 點擊直接觸發行情查詢
+        });
+
+        list.appendChild(item);
+      });
+
+      list.classList.remove('hidden');
+    });
+
+    // 點擊外部隱藏下拉選單
+    document.addEventListener('click', function(e) {
+      if (e.target !== input && e.target !== list) {
+        list.classList.add('hidden');
+      }
+    });
+
+    list.addEventListener('click', function(e) {
+      e.stopPropagation();
+    });
   }
 
   // ==========================================
