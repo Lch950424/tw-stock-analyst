@@ -79,6 +79,21 @@ const Strategies = (() => {
       const ma20 = Indicators.calculateSMA(data, 20)[i].value;
       const ma60 = Indicators.calculateSMA(data, 60)[i].value;
       
+      if (ma5 === null || ma20 === null || ma60 === null) {
+        return `
+          <div class="flex items-center gap-2 mb-3">
+            <span class="w-8 h-8 rounded-lg bg-rose-500/10 border border-rose-500/20 text-rose-500 flex items-center justify-center font-bold text-sm shadow-sm">⚠️</span>
+            <div>
+              <h4 class="text-gray-100 font-bold text-sm">數據天數不足</h4>
+              <p class="text-[10px] text-gray-500 font-mono">${data[i].time}</p>
+            </div>
+          </div>
+          <div class="border-l-2 border-rose-500 bg-rose-500/5 p-3 rounded-r-xl text-gray-300 leading-relaxed text-[11px]">
+            目前股票上市交易日天數不足（計算均線糾合需至少 60 天交易數據），長線指標暫無數據。
+          </div>
+        `;
+      }
+      
       if (type === 'buy') {
         const spread = ((Math.max(ma5, ma20, ma60) - Math.min(ma5, ma20, ma60)) / Math.min(ma5, ma20, ma60) * 100).toFixed(1);
         return `
@@ -198,6 +213,21 @@ const Strategies = (() => {
     getSignalReason: (data, i, type) => {
       const kd = Indicators.calculateKD(data, 9, 3, 3)[i];
       const rsi = Indicators.calculateRSI(data, 14)[i].value;
+      
+      if (!kd || kd.k === null || kd.d === null || rsi === null) {
+        return `
+          <div class="flex items-center gap-2 mb-3">
+            <span class="w-8 h-8 rounded-lg bg-rose-500/10 border border-rose-500/20 text-rose-500 flex items-center justify-center font-bold text-sm shadow-sm">⚠️</span>
+            <div>
+              <h4 class="text-gray-100 font-bold text-sm">數據天數不足</h4>
+              <p class="text-[10px] text-gray-500 font-mono">${data[i].time}</p>
+            </div>
+          </div>
+          <div class="border-l-2 border-rose-500 bg-rose-500/5 p-3 rounded-r-xl text-gray-300 leading-relaxed text-[11px]">
+            目前股票上市交易日天數不足（計算 KD/RSI 需至少 14 天交易數據），指標暫無數據。
+          </div>
+        `;
+      }
       
       if (type === 'buy') {
         return `
@@ -358,6 +388,20 @@ const Strategies = (() => {
     },
     getSignalReason: (data, i, type) => {
       const b = Indicators.calculateBollingerBands(data, 20, 2)[i];
+      if (!b || b.bandwidth === null || b.upper === null || b.middle === null) {
+        return `
+          <div class="flex items-center gap-2 mb-3">
+            <span class="w-8 h-8 rounded-lg bg-rose-500/10 border border-rose-500/20 text-rose-500 flex items-center justify-center font-bold text-sm shadow-sm">⚠️</span>
+            <div>
+              <h4 class="text-gray-100 font-bold text-sm">數據天數不足</h4>
+              <p class="text-[10px] text-gray-500 font-mono">${data[i].time}</p>
+            </div>
+          </div>
+          <div class="border-l-2 border-rose-500 bg-rose-500/5 p-3 rounded-r-xl text-gray-300 leading-relaxed text-[11px]">
+            目前股票上市交易日天數不足（計算布林通道需至少 20 天交易數據），布林指標暫無數據。
+          </div>
+        `;
+      }
       const bandwidthPct = (b.bandwidth * 100).toFixed(1);
       
       if (type === 'buy') {
@@ -470,6 +514,20 @@ const Strategies = (() => {
     },
     getSignalReason: (data, i, type) => {
       const m = Indicators.calculateMACD(data, 12, 26, 9)[i];
+      if (!m || m.dif === null || m.dem === null || m.osc === null) {
+        return `
+          <div class="flex items-center gap-2 mb-3">
+            <span class="w-8 h-8 rounded-lg bg-rose-500/10 border border-rose-500/20 text-rose-500 flex items-center justify-center font-bold text-sm shadow-sm">⚠️</span>
+            <div>
+              <h4 class="text-gray-100 font-bold text-sm">數據天數不足</h4>
+              <p class="text-[10px] text-gray-500 font-mono">${data[i].time}</p>
+            </div>
+          </div>
+          <div class="border-l-2 border-rose-500 bg-rose-500/5 p-3 rounded-r-xl text-gray-300 leading-relaxed text-[11px]">
+            目前股票上市交易日天數不足（計算 MACD 需至少 34 天交易數據），MACD 指標暫無數據。
+          </div>
+        `;
+      }
       
       if (type === 'buy') {
         return `

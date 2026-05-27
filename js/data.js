@@ -211,15 +211,17 @@ const StockDataGenerator = (() => {
    * 包含多重 CORS proxy 容錯機制
    */
   async function fetchRealData(ticker) {
-    let cleanTicker = ticker.trim();
+    let cleanTicker = ticker.trim().toUpperCase();
     if (!cleanTicker.includes('.')) {
       cleanTicker = `${cleanTicker}.TW`;
     }
 
     const proxies = [
       (url) => `https://api.allorigins.win/get?url=${encodeURIComponent(url)}`,
+      (url) => `https://api.allorigins.win/raw?url=${encodeURIComponent(url)}`,
       (url) => `https://corsproxy.io/?${encodeURIComponent(url)}`,
-      (url) => `https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(url)}`
+      (url) => `https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(url)}`,
+      (url) => `https://thingproxy.freeboard.io/fetch/${url}`
     ];
 
     const yahooUrl = `https://query1.finance.yahoo.com/v8/finance/chart/${cleanTicker}?interval=1d&range=2y`;

@@ -50,7 +50,7 @@ const App = (() => {
    * 加載股票數據並執行完整分析
    */
   async function loadStockAndRun(ticker, isRealTime = false) {
-    currentTicker = ticker;
+    currentTicker = ticker.trim().toUpperCase();
     stopSimulationTimer();
 
     if (isRealTime) {
@@ -98,6 +98,16 @@ const App = (() => {
     // 更新圖表標頭
     getEl('chart-title-ticker').innerText = ticker;
     getEl('chart-title-name').innerText = meta ? meta.name : '台股個股';
+
+    // 當歷史數據天數不足 60 天時，顯示警告徽章
+    const alertBadge = getEl('chart-alert-badge');
+    if (alertBadge) {
+      if (kData.length < 60) {
+        alertBadge.classList.remove('hidden');
+      } else {
+        alertBadge.classList.add('hidden');
+      }
+    }
 
     if (isSimMode) {
       resetSimulation();
@@ -367,6 +377,15 @@ const App = (() => {
     { ticker: '2317', name: '鴻海' },
     { ticker: '2454', name: '聯發科' },
     { ticker: '0050', name: '元大台灣50' },
+    { ticker: '0056', name: '元大高股息' },
+    { ticker: '00878', name: '國泰永續高股息' },
+    { ticker: '00919', name: '群益台灣精選高息' },
+    { ticker: '00929', name: '復華台灣科技優息' },
+    { ticker: '006208', name: '富邦台50' },
+    { ticker: '00713', name: '元大台灣高息低波' },
+    { ticker: '00940', name: '元大台灣價值高息' },
+    { ticker: '00939', name: '統一台灣高息動能' },
+    { ticker: '00403A', name: '統一台灣升級50 (主動式ETF)' },
     { ticker: '2303', name: '聯電' },
     { ticker: '2603', name: '長榮' },
     { ticker: '2609', name: '陽明' },
@@ -377,7 +396,27 @@ const App = (() => {
     { ticker: '3231', name: '緯創' },
     { ticker: '2357', name: '華碩' },
     { ticker: '2324', name: '仁寶' },
+    { ticker: '2353', name: '宏碁' },
     { ticker: '3711', name: '日月光投控' },
+    { ticker: '3008', name: '大立光' },
+    { ticker: '2301', name: '光寶科' },
+    { ticker: '2356', name: '英業達' },
+    { ticker: '2352', name: '佳世達' },
+    { ticker: '3037', name: '欣興' },
+    { ticker: '3035', name: '智原' },
+    { ticker: '3443', name: '創意' },
+    { ticker: '3661', name: '世芯-KY' },
+    { ticker: '2379', name: '瑞昱' },
+    { ticker: '3034', name: '聯詠' },
+    { ticker: '2308', name: '台達電' },
+    { ticker: '2308', name: '台達電' },
+    { ticker: '1503', name: '士電' },
+    { ticker: '1504', name: '東元' },
+    { ticker: '1513', name: '中興電' },
+    { ticker: '1514', name: '亞力' },
+    { ticker: '1519', name: '華城' },
+    { ticker: '2618', name: '長榮航' },
+    { ticker: '2610', name: '華航' },
     { ticker: '2881', name: '富邦金' },
     { ticker: '2882', name: '國泰金' },
     { ticker: '2891', name: '中信金' },
@@ -389,24 +428,27 @@ const App = (() => {
     { ticker: '2880', name: '華南金' },
     { ticker: '2885', name: '元大金' },
     { ticker: '2883', name: '開發金' },
-    { ticker: '0056', name: '元大高股息' },
-    { ticker: '00878', name: '國泰永續高股息' },
-    { ticker: '00919', name: '群益台灣精選高息' },
-    { ticker: '00929', name: '復華台灣科技優息' },
-    { ticker: '00940', name: '元大台灣價值高息' },
-    { ticker: '2618', name: '長榮航' },
-    { ticker: '2610', name: '華航' },
-    { ticker: '2353', name: '宏碁' },
-    { ticker: '3037', name: '欣興' },
-    { ticker: '3008', name: '大立光' },
-    { ticker: '3045', name: '台灣大' },
-    { ticker: '4904', name: '遠傳' },
-    { ticker: '2412', name: '中華電' },
+    { ticker: '2887', name: '台新金' },
+    { ticker: '2888', name: '新光金' },
+    { ticker: '2801', name: '彰銀' },
+    { ticker: '5876', name: '上海商銀' },
+    { ticker: '2812', name: '台中銀' },
     { ticker: '1101', name: '台泥' },
+    { ticker: '1102', name: '亞泥' },
     { ticker: '1301', name: '台塑' },
     { ticker: '1303', name: '南亞' },
     { ticker: '1326', name: '台化' },
-    { ticker: '6505', name: '台塑化' }
+    { ticker: '6505', name: '台塑化' },
+    { ticker: '2006', name: '東鋼' },
+    { ticker: '2014', name: '中鴻' },
+    { ticker: '2105', name: '正新' },
+    { ticker: '9904', name: '寶成' },
+    { ticker: '9921', name: '巨大' },
+    { ticker: '2912', name: '統一超' },
+    { ticker: '1216', name: '統一' },
+    { ticker: '2412', name: '中華電' },
+    { ticker: '3045', name: '台灣大' },
+    { ticker: '4904', name: '遠傳' }
   ];
 
   function initAutocomplete() {
@@ -428,9 +470,21 @@ const App = (() => {
         stock.name.toLowerCase().includes(val)
       );
 
-      if (matches.length === 0) {
-        list.classList.add('hidden');
-        return;
+      // 新增：如果輸入符合台股/ETF代碼格式 (4 到 6 碼英文字母或數字組合，如 00403A, 2330)，提供快捷項目
+      const isValidTicker = /^[0-9a-zA-Z]{4,6}$/.test(val);
+      if (isValidTicker) {
+        const customItem = document.createElement('div');
+        customItem.className = 'px-3 py-2.5 bg-blue-600/10 hover:bg-blue-600/35 hover:text-white cursor-pointer transition text-blue-400 font-semibold flex justify-between items-center border-b border-white/10';
+        customItem.innerHTML = `
+          <span>🔍 載入自訂台股 [${val}]</span>
+          <span class="text-[9px] bg-blue-500/25 px-1.5 py-0.5 rounded text-white font-normal">直接載入</span>
+        `;
+        customItem.addEventListener('click', function() {
+          input.value = val;
+          list.classList.add('hidden');
+          getEl('btn-fetch-realtime').click();
+        });
+        list.appendChild(customItem);
       }
 
       matches.forEach(stock => {
@@ -451,7 +505,11 @@ const App = (() => {
         list.appendChild(item);
       });
 
-      list.classList.remove('hidden');
+      if (list.childNodes.length === 0) {
+        list.classList.add('hidden');
+      } else {
+        list.classList.remove('hidden');
+      }
     });
 
     // 點擊外部隱藏下拉選單
