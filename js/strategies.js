@@ -82,34 +82,66 @@ const Strategies = (() => {
       if (type === 'buy') {
         const spread = ((Math.max(ma5, ma20, ma60) - Math.min(ma5, ma20, ma60)) / Math.min(ma5, ma20, ma60) * 100).toFixed(1);
         return `
-          <h4 class="text-red-400 font-semibold mb-2 flex items-center gap-1">
-            <span class="inline-block w-2.5 h-2.5 rounded-full bg-red-500 animate-pulse"></span>
-            策略觸發：均線糾合突破買入訊號
-          </h4>
-          <p class="text-gray-300 text-sm leading-relaxed mb-3">
-            當天收盤價為 <strong>${data[i].close} 元</strong>，成功站上所有短中長期均線（5MA: ${ma5.toFixed(1)}元, 20MA: ${ma20.toFixed(1)}元, 60MA: ${ma60.toFixed(1)}元）。
-          </p>
-          <div class="bg-gray-800/50 border border-gray-700/50 rounded-lg p-3 text-xs text-gray-400 space-y-1 mb-3">
-            <div>📈 <strong>多頭排列</strong>：5MA > 20MA > 60MA，代表短中長期趨勢同步轉強。</div>
-            <div>⚡ <strong>均線緊密糾合</strong>：當時三條均線的乖離率僅 <strong>${spread}%</strong>，代表主力已在低檔收購籌碼，能量極度壓縮。</div>
-            <div>📊 <strong>量能確認</strong>：成交量 <strong>${(data[i].volume / 1000).toFixed(0)} 張</strong>，較前幾天明顯放大，代表有實質性買盤進場追價，並非虛假突破。</div>
+          <div class="flex items-center gap-2 mb-3">
+            <span class="w-8 h-8 rounded-lg bg-red-500/10 border border-red-500/20 text-red-500 flex items-center justify-center font-bold text-base shadow-sm">B</span>
+            <div>
+              <h4 class="text-gray-100 font-bold text-sm">均線糾合突破買入訊號</h4>
+              <p class="text-[10px] text-gray-500 font-mono">${data[i].time}</p>
+            </div>
           </div>
-          <p class="text-amber-400/90 text-xs italic">💡 <strong>操作心法</strong>：進場後，可將防守停損點設在 20MA (月線) 或是當天突破 K 線的最低點。只要沒有跌破月線，就抱牢波段以賺取完整主升段利潤。</p>
+          
+          <div class="border-l-2 border-red-500 bg-red-500/5 p-3 rounded-r-xl mb-3 text-gray-300 leading-relaxed text-[11px]">
+            當天收盤價為 <strong class="text-white text-xs">${data[i].close} 元</strong>，以長紅 K 強勢站上所有均線，暗示低檔整理行情結束。
+          </div>
+
+          <div class="grid grid-cols-2 gap-2 mb-3">
+            <div class="bg-gray-900/60 border border-white/5 rounded-xl p-2.5 flex flex-col justify-between">
+              <span class="text-gray-500 text-[10px] mb-1">均線緊密糾合度</span>
+              <span class="text-sm font-bold text-amber-400 font-mono">${spread}%</span>
+              <span class="text-[9px] text-gray-400 mt-0.5">多頭能量極度壓縮</span>
+            </div>
+            <div class="bg-gray-900/60 border border-white/5 rounded-xl p-2.5 flex flex-col justify-between">
+              <span class="text-gray-500 text-[10px] mb-1">成交量確認</span>
+              <span class="text-sm font-bold text-blue-400 font-mono">${(data[i].volume / 1000).toFixed(0)} 張</span>
+              <span class="text-[9px] text-gray-400 mt-0.5">主力爆量進場追價</span>
+            </div>
+          </div>
+
+          <div class="bg-gray-800/40 border border-white/5 rounded-xl p-3 text-[11px] text-gray-400 space-y-2 mb-3">
+            <div class="flex items-start gap-1.5">
+              <span class="w-1.5 h-1.5 rounded-full bg-red-400 mt-1"></span>
+              <div>📈 <strong>多頭排列確立</strong>：5MA (${ma5.toFixed(1)}元) > 20MA (${ma20.toFixed(1)}元) > 60MA (${ma60.toFixed(1)}元)，長中短期均線同步翻揚。</div>
+            </div>
+            <div class="flex items-start gap-1.5">
+              <span class="w-1.5 h-1.5 rounded-full bg-red-400 mt-1"></span>
+              <div>💡 <strong>防守指南</strong>：進場後，可將停損點設在 20MA (月線) 或今日突破 K 線的最低點。未破月線前，波段單應續抱。</div>
+            </div>
+          </div>
         `;
       } else {
         return `
-          <h4 class="text-emerald-400 font-semibold mb-2 flex items-center gap-1">
-            <span class="inline-block w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse"></span>
-            策略觸發：破線停損/出場訊號
-          </h4>
-          <p class="text-gray-300 text-sm leading-relaxed mb-3">
-            當天收盤價跌破 20MA 月線（當時月線價格為 <strong>${ma20.toFixed(1)} 元</strong>，收盤為 <strong>${data[i].close} 元</strong>）。
-          </p>
-          <div class="bg-gray-800/50 border border-gray-700/50 rounded-lg p-3 text-xs text-gray-400 space-y-1 mb-3">
-            <div>⚠️ <strong>生命線失守</strong>：20MA 被視為多頭短期的護城河。跌破 20MA 代表多頭攻勢暫告結束，可能轉為盤整或空頭趨勢。</div>
-            <div>📉 <strong>落袋為安</strong>：此時果斷停損或停利出場，能避開後續更大幅度的修正，保護手頭資金。</div>
+          <div class="flex items-center gap-2 mb-3">
+            <span class="w-8 h-8 rounded-lg bg-emerald-500/10 border border-emerald-500/20 text-emerald-500 flex items-center justify-center font-bold text-base shadow-sm">S</span>
+            <div>
+              <h4 class="text-gray-100 font-bold text-sm">跌破月線出場訊號</h4>
+              <p class="text-[10px] text-gray-500 font-mono">${data[i].time}</p>
+            </div>
           </div>
-          <p class="text-amber-400/90 text-xs italic">💡 <strong>交易紀律</strong>：永遠不要和趨勢對抗。當主力護盤的月線被實體黑 K 跌破時，嚴格執行紀律出場，留得青山在，不怕沒柴燒。</p>
+          
+          <div class="border-l-2 border-emerald-500 bg-emerald-500/5 p-3 rounded-r-xl mb-3 text-gray-300 leading-relaxed text-[11px]">
+            當天收盤跌破月線（收盤 <strong class="text-white text-xs">${data[i].close} 元</strong> &lt; 20MA <strong class="text-white text-xs">${ma20.toFixed(1)} 元</strong>）。
+          </div>
+
+          <div class="bg-gray-800/40 border border-white/5 rounded-xl p-3 text-[11px] text-gray-400 space-y-2 mb-3">
+            <div class="flex items-start gap-1.5">
+              <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 mt-1"></span>
+              <div>⚠️ <strong>生命線失守</strong>：20MA 是多頭中期的重要防線，跌破代表上漲慣性被打破，可能轉向盤整或跌勢。</div>
+            </div>
+            <div class="flex items-start gap-1.5">
+              <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 mt-1"></span>
+              <div>🛡️ <strong>資金風控</strong>：果斷離場以規避回檔風險。保住利潤並退出觀望是交易獲利的關鍵。</div>
+            </div>
+          </div>
         `;
       }
     }
@@ -169,33 +201,79 @@ const Strategies = (() => {
       
       if (type === 'buy') {
         return `
-          <h4 class="text-red-400 font-semibold mb-2 flex items-center gap-1">
-            <span class="inline-block w-2.5 h-2.5 rounded-full bg-red-500 animate-pulse"></span>
-            策略觸發：KD 低檔交叉買入訊號
-          </h4>
-          <p class="text-gray-300 text-sm leading-relaxed mb-3">
-            當前股價為 <strong>${data[i].close} 元</strong>，技術指標在超跌區發出明確的轉折上漲訊號。
-          </p>
-          <div class="bg-gray-800/50 border border-gray-700/50 rounded-lg p-3 text-xs text-gray-400 space-y-1 mb-3">
-            <div>🟡 <strong>KD黃金交叉</strong>：K值為 <strong>${kd.k.toFixed(1)}</strong>，D值為 <strong>${kd.d.toFixed(1)}</strong>。K 線自低檔向上穿過 D 線，代表短期價格動能扭轉。</div>
-            <div>🔵 <strong>RSI 超賣回升</strong>：RSI(14) 為 <strong>${rsi.toFixed(1)}</strong>，擺脫小於 30 的極度超賣區，反映買盤湧入。</div>
+          <div class="flex items-center gap-2 mb-3">
+            <span class="w-8 h-8 rounded-lg bg-red-500/10 border border-red-500/20 text-red-500 flex items-center justify-center font-bold text-base shadow-sm">B</span>
+            <div>
+              <h4 class="text-gray-100 font-bold text-sm">KD 低檔交叉買入訊號</h4>
+              <p class="text-[10px] text-gray-500 font-mono">${data[i].time}</p>
+            </div>
           </div>
-          <p class="text-amber-400/90 text-xs italic">💡 <strong>操作心法</strong>：此時屬於逆勢或轉折波交易，勝率取決於箱型震盪的邊界。停損點可設在近期波段低點。一旦反彈至箱型上軌，需注意分批獲利了結。</p>
+          
+          <div class="border-l-2 border-red-500 bg-red-500/5 p-3 rounded-r-xl mb-3 text-gray-300 leading-relaxed text-[11px]">
+            當天股價為 <strong class="text-white text-xs">${data[i].close} 元</strong>，技術指標從超跌嚴重區向上發出轉折強彈訊號。
+          </div>
+
+          <div class="grid grid-cols-2 gap-2 mb-3">
+            <div class="bg-gray-900/60 border border-white/5 rounded-xl p-2.5 flex flex-col justify-between">
+              <span class="text-gray-500 text-[10px] mb-1">KD 黃金交叉</span>
+              <span class="text-sm font-bold text-amber-400 font-mono">K: ${kd.k.toFixed(1)} / D: ${kd.d.toFixed(1)}</span>
+              <span class="text-[9px] text-gray-400 mt-0.5">低檔區 (均小於 32)</span>
+            </div>
+            <div class="bg-gray-900/60 border border-white/5 rounded-xl p-2.5 flex flex-col justify-between">
+              <span class="text-gray-500 text-[10px] mb-1">RSI 強弱力道</span>
+              <span class="text-sm font-bold text-blue-400 font-mono">${rsi.toFixed(1)}</span>
+              <span class="text-[9px] text-gray-400 mt-0.5">擺脫低於 30 的超賣弱勢</span>
+            </div>
+          </div>
+
+          <div class="bg-gray-800/40 border border-white/5 rounded-xl p-3 text-[11px] text-gray-400 space-y-2 mb-3">
+            <div class="flex items-start gap-1.5">
+              <span class="w-1.5 h-1.5 rounded-full bg-red-400 mt-1"></span>
+              <div>🟢 <strong>超跌買盤介入</strong>：KD 與 RSI 同時從超賣極限區爬升，代表空頭賣壓宣洩完畢，多頭開始發力。</div>
+            </div>
+            <div class="flex items-start gap-1.5">
+              <span class="w-1.5 h-1.5 rounded-full bg-red-400 mt-1"></span>
+              <div>💡 <strong>防守指南</strong>：此為偏好區間低買高賣的逆勢短線交易，防守線可設於近期波段最低價，目標前波箱型上軌。</div>
+            </div>
+          </div>
         `;
       } else {
         return `
-          <h4 class="text-emerald-400 font-semibold mb-2 flex items-center gap-1">
-            <span class="inline-block w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse"></span>
-            策略觸發：超買獲利了結訊號
-          </h4>
-          <p class="text-gray-300 text-sm leading-relaxed mb-3">
-            指標來到高檔過熱區，發出死亡交叉或超買警戒（當天 K值: <strong>${kd.k.toFixed(1)}</strong>, D值: <strong>${kd.d.toFixed(1)}</strong>, RSI: <strong>${rsi.toFixed(1)}</strong>）。
-          </p>
-          <div class="bg-gray-800/50 border border-gray-700/50 rounded-lg p-3 text-xs text-gray-400 space-y-1 mb-3">
-            <div>🔴 <strong>KD 高檔死亡交叉</strong>：K值向下跌破 D值，表示上漲速度減緩，多頭力道耗盡。</div>
-            <div>🔥 <strong>RSI 過熱警戒</strong>：RSI 超過 75，市場情緒高度亢奮，回檔修正機率大增。</div>
+          <div class="flex items-center gap-2 mb-3">
+            <span class="w-8 h-8 rounded-lg bg-emerald-500/10 border border-emerald-500/20 text-emerald-500 flex items-center justify-center font-bold text-base shadow-sm">S</span>
+            <div>
+              <h4 class="text-gray-100 font-bold text-sm">指標高檔超買出場訊號</h4>
+              <p class="text-[10px] text-gray-500 font-mono">${data[i].time}</p>
+            </div>
           </div>
-          <p class="text-amber-400/90 text-xs italic">💡 <strong>交易紀律</strong>：不賺最後一銅板。在震盪市中，高檔過熱區果斷出場是保住獲利的關鍵，不要因為追高而把利潤吐回去。</p>
+          
+          <div class="border-l-2 border-emerald-500 bg-emerald-500/5 p-3 rounded-r-xl mb-3 text-gray-300 leading-relaxed text-[11px]">
+            當天收盤為 <strong class="text-white text-xs">${data[i].close} 元</strong>，指標來到過熱區發出死亡交叉警報。
+          </div>
+
+          <div class="grid grid-cols-2 gap-2 mb-3">
+            <div class="bg-gray-900/60 border border-white/5 rounded-xl p-2.5 flex flex-col justify-between">
+              <span class="text-gray-500 text-[10px] mb-1">KD 高檔死亡交叉</span>
+              <span class="text-sm font-bold text-emerald-400 font-mono">K: ${kd.k.toFixed(1)} / D: ${kd.d.toFixed(1)}</span>
+              <span class="text-[9px] text-gray-400 mt-0.5">高檔過熱區 (大於 75)</span>
+            </div>
+            <div class="bg-gray-900/60 border border-white/5 rounded-xl p-2.5 flex flex-col justify-between">
+              <span class="text-gray-500 text-[10px] mb-1">RSI 強度</span>
+              <span class="text-sm font-bold text-rose-400 font-mono">${rsi.toFixed(1)}</span>
+              <span class="text-[9px] text-gray-400 mt-0.5">警惕隨時回檔修正</span>
+            </div>
+          </div>
+
+          <div class="bg-gray-800/40 border border-white/5 rounded-xl p-3 text-[11px] text-gray-400 space-y-2 mb-3">
+            <div class="flex items-start gap-1.5">
+              <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 mt-1"></span>
+              <div>🔴 <strong>多頭動能減退</strong>：KD 高位死叉表明上漲力道已鈍化，配合 RSI 超越 75 警戒，高機率迎來回檔。</div>
+            </div>
+            <div class="flex items-start gap-1.5">
+              <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 mt-1"></span>
+              <div>🛡️ <strong>落袋為安</strong>：在箱型市場中，不貪戀最後一段利潤，分批出場退場是維護複利績效的最佳交易策略。</div>
+            </div>
+          </div>
         `;
       }
     }
@@ -284,34 +362,66 @@ const Strategies = (() => {
       
       if (type === 'buy') {
         return `
-          <h4 class="text-red-400 font-semibold mb-2 flex items-center gap-1">
-            <span class="inline-block w-2.5 h-2.5 rounded-full bg-red-500 animate-pulse"></span>
-            策略觸發：布林帶寬收窄突破買入訊號
-          </h4>
-          <p class="text-gray-300 text-sm leading-relaxed mb-3">
-            當天股價以強勢紅 K 突破布林上軌（收盤 <strong>${data[i].close} 元</strong> > 上軌 <strong>${b.upper.toFixed(1)} 元</strong>）。
-          </p>
-          <div class="bg-gray-800/50 border border-gray-700/50 rounded-lg p-3 text-xs text-gray-400 space-y-1 mb-3">
-            <div>🚀 <strong>帶寬擠壓釋放</strong>：前段通道極度收窄（頻寬僅 <strong>${bandwidthPct}%</strong>），代表市場積累了龐大的波動能量。今日往上突破，能量正式噴發。</div>
-            <div>📈 <strong>紅K站穩上軌</strong>：股價貼著上軌強勢推升，是極強多頭走勢的特徵（俗稱「帶量走軌」）。</div>
-            <div>📊 <strong>爆量確認</strong>：成交量 <strong>${(data[i].volume / 1000).toFixed(0)} 張</strong>，確認為真突破。</div>
+          <div class="flex items-center gap-2 mb-3">
+            <span class="w-8 h-8 rounded-lg bg-red-500/10 border border-red-500/20 text-red-500 flex items-center justify-center font-bold text-base shadow-sm">B</span>
+            <div>
+              <h4 class="text-gray-100 font-bold text-sm">布林通道突破買入訊號</h4>
+              <p class="text-[10px] text-gray-500 font-mono">${data[i].time}</p>
+            </div>
           </div>
-          <p class="text-amber-400/90 text-xs italic">💡 <strong>操作心法</strong>：布林帶寬突破往往是「飆股」的起點。如果通道持續張開，股價會沿著上軌往上。防守線可設在 20MA（中軌），跌破中軌再出場即可。</p>
+          
+          <div class="border-l-2 border-red-500 bg-red-500/5 p-3 rounded-r-xl mb-3 text-gray-300 leading-relaxed text-[11px]">
+            當天股價以實體紅 K 強勢突破布林上軌（收盤 <strong class="text-white text-xs">${data[i].close} 元</strong> &gt; 上軌 <strong class="text-white text-xs">${b.upper.toFixed(1)} 元</strong>）。
+          </div>
+
+          <div class="grid grid-cols-2 gap-2 mb-3">
+            <div class="bg-gray-900/60 border border-white/5 rounded-xl p-2.5 flex flex-col justify-between">
+              <span class="text-gray-500 text-[10px] mb-1">通道寬度 (Bandwidth)</span>
+              <span class="text-sm font-bold text-amber-400 font-mono">${bandwidthPct}%</span>
+              <span class="text-[9px] text-gray-400 mt-0.5">經歷長時間擠壓能量壓縮</span>
+            </div>
+            <div class="bg-gray-900/60 border border-white/5 rounded-xl p-2.5 flex flex-col justify-between">
+              <span class="text-gray-500 text-[10px] mb-1">量能確認</span>
+              <span class="text-sm font-bold text-blue-400 font-mono">${(data[i].volume / 1000).toFixed(0)} 張</span>
+              <span class="text-[9px] text-gray-400 mt-0.5">買盤表態，非虛假突破</span>
+            </div>
+          </div>
+
+          <div class="bg-gray-800/40 border border-white/5 rounded-xl p-3 text-[11px] text-gray-400 space-y-2 mb-3">
+            <div class="flex items-start gap-1.5">
+              <span class="w-1.5 h-1.5 rounded-full bg-red-400 mt-1"></span>
+              <div>🚀 <strong>帶量走軌飆股型態</strong>：布林帶寬收窄後爆發，是台股極強波段噴出的特徵。</div>
+            </div>
+            <div class="flex items-start gap-1.5">
+              <span class="w-1.5 h-1.5 rounded-full bg-red-400 mt-1"></span>
+              <div>💡 <strong>防守指南</strong>：只要布林通道維持開口朝上，股價會貼著上軌前進。移動防守線可設在 20MA（中軌），跌破中軌再分批出場。</div>
+            </div>
+          </div>
         `;
       } else {
         return `
-          <h4 class="text-emerald-400 font-semibold mb-2 flex items-center gap-1">
-            <span class="inline-block w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse"></span>
-            策略觸發：跌破布林中軌出場訊號
-          </h4>
-          <p class="text-gray-300 text-sm leading-relaxed mb-3">
-            當天收盤價跌破布林中軌（收盤 <strong>${data[i].close} 元</strong> < 中軌 20MA <strong>${b.middle.toFixed(1)} 元</strong>）。
-          </p>
-          <div class="bg-gray-800/50 border border-gray-700/50 rounded-lg p-3 text-xs text-gray-400 space-y-1 mb-3">
-            <div>⚠️ <strong>多頭動能熄火</strong>：股價由上軌向下跌穿中軌，代表原本沿軌上漲的強勢多頭型態遭到破壞。</div>
-            <div>📉 <strong>回檔或轉折防範</strong>：跌破中軌代表股價可能進入空頭或進入大箱型盤整，出場退場觀望，鎖定獲利。</div>
+          <div class="flex items-center gap-2 mb-3">
+            <span class="w-8 h-8 rounded-lg bg-emerald-500/10 border border-emerald-500/20 text-emerald-500 flex items-center justify-center font-bold text-base shadow-sm">S</span>
+            <div>
+              <h4 class="text-gray-100 font-bold text-sm">跌破布林中軌出場訊號</h4>
+              <p class="text-[10px] text-gray-500 font-mono">${data[i].time}</p>
+            </div>
           </div>
-          <p class="text-amber-400/90 text-xs italic">💡 <strong>交易紀律</strong>：當股價從強勢軌道跌破中軌，一定要捨得停利或止損，切勿抱著凹單，以免利潤回吐甚至轉為大幅虧損。</p>
+          
+          <div class="border-l-2 border-emerald-500 bg-emerald-500/5 p-3 rounded-r-xl mb-3 text-gray-300 leading-relaxed text-[11px]">
+            當天收盤價跌破布林中軌（收盤 <strong class="text-white text-xs">${data[i].close} 元</strong> &lt; 中軌 20MA <strong class="text-white text-xs">${b.middle.toFixed(1)} 元</strong>）。
+          </div>
+
+          <div class="bg-gray-800/40 border border-white/5 rounded-xl p-3 text-[11px] text-gray-400 space-y-2 mb-3">
+            <div class="flex items-start gap-1.5">
+              <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 mt-1"></span>
+              <div>⚠️ <strong>多頭動能中止</strong>：股價由上軌區一路跌破中軌，表示多頭推升的氣勢已經結束，市場進入震盪或空頭修正。</div>
+            </div>
+            <div class="flex items-start gap-1.5">
+              <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 mt-1"></span>
+              <div>🛡️ <strong>出場防禦</strong>：嚴格遵守紀律平倉，鎖定先前主升段突破的獲利，避免利潤吞噬或擴大虧損。</div>
+            </div>
+          </div>
         `;
       }
     }
@@ -363,33 +473,79 @@ const Strategies = (() => {
       
       if (type === 'buy') {
         return `
-          <h4 class="text-red-400 font-semibold mb-2 flex items-center gap-1">
-            <span class="inline-block w-2.5 h-2.5 rounded-full bg-red-500 animate-pulse"></span>
-            策略觸發：MACD 動能翻紅買入訊號
-          </h4>
-          <p class="text-gray-300 text-sm leading-relaxed mb-3">
-            當日股價收 <strong>${data[i].close} 元</strong>，MACD 指標在低檔或中檔確認動能轉強。
-          </p>
-          <div class="bg-gray-800/50 border border-gray-700/50 rounded-lg p-3 text-xs text-gray-400 space-y-1 mb-3">
-            <div>📊 <strong>柱狀體翻紅 (OSC)</strong>：OSC 數值達 <strong>${m.osc.toFixed(2)}</strong>。由負轉正代表多頭買盤力量已經超越空頭賣盤，買氣重新點火。</div>
-            <div>📈 <strong>雙線指標</strong>：DIF (快線) 為 <strong>${m.dif.toFixed(2)}</strong>，DEM (慢線) 為 <strong>${m.dem.toFixed(2)}</strong>，兩線於健康區間黃金交叉或呈多頭發散。</div>
+          <div class="flex items-center gap-2 mb-3">
+            <span class="w-8 h-8 rounded-lg bg-red-500/10 border border-red-500/20 text-red-500 flex items-center justify-center font-bold text-base shadow-sm">B</span>
+            <div>
+              <h4 class="text-gray-100 font-bold text-sm">MACD 動能翻紅買入訊號</h4>
+              <p class="text-[10px] text-gray-500 font-mono">${data[i].time}</p>
+            </div>
           </div>
-          <p class="text-amber-400/90 text-xs italic">💡 <strong>操作心法</strong>：MACD 翻紅適合波段操作。如果是在零軸以上的翻紅，屬於強勢多頭的乘勝追擊；在零軸以下的翻紅則偏向打底反彈。只要柱狀體維持紅色，即可持續抱股。</p>
+          
+          <div class="border-l-2 border-red-500 bg-red-500/5 p-3 rounded-r-xl mb-3 text-gray-300 leading-relaxed text-[11px]">
+            當天收盤價為 <strong class="text-white text-xs">${data[i].close} 元</strong>，MACD 快慢線交叉或柱狀體翻正，多頭動能增強。
+          </div>
+
+          <div class="grid grid-cols-2 gap-2 mb-3">
+            <div class="bg-gray-900/60 border border-white/5 rounded-xl p-2.5 flex flex-col justify-between">
+              <span class="text-gray-500 text-[10px] mb-1">柱狀體動能 (OSC)</span>
+              <span class="text-sm font-bold text-amber-400 font-mono">${m.osc.toFixed(2)}</span>
+              <span class="text-[9px] text-gray-400 mt-0.5">由負翻正 (綠翻紅)</span>
+            </div>
+            <div class="bg-gray-900/60 border border-white/5 rounded-xl p-2.5 flex flex-col justify-between">
+              <span class="text-gray-500 text-[10px] mb-1">快慢乖離 (DIF)</span>
+              <span class="text-sm font-bold text-blue-400 font-mono">${m.dif.toFixed(2)}</span>
+              <span class="text-[9px] text-gray-400 mt-0.5">慢線 (DEM): ${m.dem.toFixed(2)}</span>
+            </div>
+          </div>
+
+          <div class="bg-gray-800/40 border border-white/5 rounded-xl p-3 text-[11px] text-gray-400 space-y-2 mb-3">
+            <div class="flex items-start gap-1.5">
+              <span class="w-1.5 h-1.5 rounded-full bg-red-400 mt-1"></span>
+              <div>📈 <strong>多頭動能重啟</strong>：OSC 翻正說明買方力道全面壓制賣方，此時適合作為健康的多頭波段買點。</div>
+            </div>
+            <div class="flex items-start gap-1.5">
+              <span class="w-1.5 h-1.5 rounded-full bg-red-400 mt-1"></span>
+              <div>💡 <strong>防守指南</strong>：MACD 是中長線趨勢指標。只要柱狀體維持紅色向上成長，持股即可抱牢，直至柱狀體再度由正翻負。</div>
+            </div>
+          </div>
         `;
       } else {
         return `
-          <h4 class="text-emerald-400 font-semibold mb-2 flex items-center gap-1">
-            <span class="inline-block w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse"></span>
-            策略觸發：MACD 動能翻綠出場訊號
-          </h4>
-          <p class="text-gray-300 text-sm leading-relaxed mb-3">
-            MACD 指標柱狀體由正翻負，或雙線死亡交叉（當前 DIF: <strong>${m.dif.toFixed(2)}</strong>, DEM: <strong>${m.dem.toFixed(2)}</strong>, OSC: <strong>${m.osc.toFixed(2)}</strong>）。
-          </p>
-          <div class="bg-gray-800/50 border border-gray-700/50 rounded-lg p-3 text-xs text-gray-400 space-y-1 mb-3">
-            <div>🟢 <strong>柱狀體翻綠 (OSC < 0)</strong>：代表多頭推升力道已竭，空頭力量開始佔據上風。</div>
-            <div>⚠️ <strong>死亡交叉</strong>：DIF 跌破 DEM，屬於中線走弱訊號，股價隨後高機率陷入盤整或下跌通道。</div>
+          <div class="flex items-center gap-2 mb-3">
+            <span class="w-8 h-8 rounded-lg bg-emerald-500/10 border border-emerald-500/20 text-emerald-500 flex items-center justify-center font-bold text-base shadow-sm">S</span>
+            <div>
+              <h4 class="text-gray-100 font-bold text-sm">MACD 動能熄火出場訊號</h4>
+              <p class="text-[10px] text-gray-500 font-mono">${data[i].time}</p>
+            </div>
           </div>
-          <p class="text-amber-400/90 text-xs italic">💡 <strong>交易紀律</strong>：MACD 動能翻綠常能幫助投資人避開隨後的大跌。寧可少賺，也不要在大動能翻空時抱股，執行紀律出場才能確保長期獲利。</p>
+          
+          <div class="border-l-2 border-emerald-500 bg-emerald-500/5 p-3 rounded-r-xl mb-3 text-gray-300 leading-relaxed text-[11px]">
+            當天收盤價為 <strong class="text-white text-xs">${data[i].close} 元</strong>，快線跌破慢線死叉或柱狀體翻綠，中期趨勢轉弱。
+          </div>
+
+          <div class="grid grid-cols-2 gap-2 mb-3">
+            <div class="bg-gray-900/60 border border-white/5 rounded-xl p-2.5 flex flex-col justify-between">
+              <span class="text-gray-500 text-[10px] mb-1">柱狀體動能 (OSC)</span>
+              <span class="text-sm font-bold text-emerald-400 font-mono">${m.osc.toFixed(2)}</span>
+              <span class="text-[9px] text-gray-400 mt-0.5">由正翻負 (紅翻綠)</span>
+            </div>
+            <div class="bg-gray-900/60 border border-white/5 rounded-xl p-2.5 flex flex-col justify-between">
+              <span class="text-gray-500 text-[10px] mb-1">快慢乖離 (DIF)</span>
+              <span class="text-sm font-bold text-rose-400 font-mono">${m.dif.toFixed(2)}</span>
+              <span class="text-[9px] text-gray-400 mt-0.5">慢線 (DEM): ${m.dem.toFixed(2)}</span>
+            </div>
+          </div>
+
+          <div class="bg-gray-800/40 border border-white/5 rounded-xl p-3 text-[11px] text-gray-400 space-y-2 mb-3">
+            <div class="flex items-start gap-1.5">
+              <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 mt-1"></span>
+              <div>🟢 <strong>買盤力道衰退</strong>：MACD 柱狀體翻負或死叉代表原本強勁的多頭走勢面臨失速，高機率出現深幅回檔。</div>
+            </div>
+            <div class="flex items-start gap-1.5">
+              <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 mt-1"></span>
+              <div>🛡️ <strong>紀律鎖利</strong>：中長線指標翻空時一定要順勢出場，守住利潤，避開空頭初跌段。</div>
+            </div>
+          </div>
         `;
       }
     }
